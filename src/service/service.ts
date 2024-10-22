@@ -2,16 +2,10 @@ import { BaseItem, Item, Items } from "../interface/interface.model";
 
 let items: Items = {
     1: {
-    id:11,
-    username: 'test',
-    age: 18,
-    hobbies: ['sport', 'footboy']
-    },
-    2: {
-    id:2,
-    username: 'test2',
-    age: 20,
-    hobbies: ['sport']
+        id: 11,
+        username: 'test',
+        age: 18,
+        hobbies: ['node js', 'angular']
     }
 }
 
@@ -24,8 +18,7 @@ export const create = async (newItem: BaseItem): Promise<Item> => {
     items[id] = {
         id,
         ...newItem,
-    };
-
+    };    
     return items[id];
 };
 

@@ -8,6 +8,7 @@ export const itemsRouter = (req: IncomingMessage, res: ServerResponse) => {
     const parsedUrl = parse(req.url || '', true);
     const pathname = parsedUrl.pathname || '';
     const method = req.method || '';
+    console.log(method);
     const idMatch = pathname.match(/^\/api\/users\/([0-9a-zA-Z-]+)$/);
     const id = idMatch ? idMatch[1] : null;
 
@@ -15,11 +16,13 @@ export const itemsRouter = (req: IncomingMessage, res: ServerResponse) => {
         getMethod(res)
     } else if (id && pathname === `/api/users/${id}` && method === 'GET') {
         getMethodId(res, Number(id));
-    } else {
+    } else if (pathname === '/api/users' && method === 'POST') {
+        getMethodPost(req, res);
+    }
+    else {
         res.writeHead(404, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ message: 'Endpoint not found' }));
     }
-
 }
 
 const getMethod = async (res: ServerResponse) => {
@@ -49,19 +52,42 @@ const getMethodId = async (res: ServerResponse, id: number) => {
     }
 };
 
-/* itemsRouter.post("/", async (req: Request, res: Response) => {
-    try {
-        const item: BaseItem = req.body;
+const getMethodPost = async (req: IncomingMessage, res: ServerResponse) => {
+    let body = '';
 
-        const newItem = await ItemService.create(item);
+    req
+        .on('data', (data) => {
+            body += data;
+        })
+        .on('end', () => {
+            try {
+                const { username, age, hobbies } = JSON.parse(body);
 
-        res.status(201).json(newItem);
-    } catch (e) {
-        res.status(500).send(e.message);
-    }
-});
+                if (!username || typeof age !== 'number' || !Array.isArray(hobbies)) {
+                    res.writeHead(400, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ message: 'Invalid or missing user data' }));
+                    return;
+                }
+                
+                const item = { username, age, hobbies }                
+                const newUser = ItemService.create(item);
+                console.log(newUser);
+                res.writeHead(201, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify(newUser));
+            } catch {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ message: 'Invalid JSON format' }));
+            }
+        });
 
-itemsRouter.put("/:id", async (req: Request, res: Response) => {
+
+    //res.status(201).json(newItem);
+    //} catch (e) {
+    //res.status(500).send(e.message);
+    //}
+};
+
+/* itemsRouter.put("/:id", async (req: Request, res: Response) => {
     const id: number = parseInt(req.params.id, 10);
 
     try {
