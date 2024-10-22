@@ -2,23 +2,19 @@ import { BaseItem, Item, Items } from "../interface/interface.model";
 
 let items: Items = {
     1: {
-        id: 1,
-        name: "name1",
-        description: "test name1",
-
+    id:11,
+    username: 'test',
+    age: 18,
+    hobbies: ['sport', 'footboy']
     },
     2: {
-        id: 2,
-        name: "name2",
-        description: "name2 test",
-
-    },
-    3: {
-        id: 3,
-        name: "name3",
-        description: "name3 test",
+    id:2,
+    username: 'test2',
+    age: 20,
+    hobbies: ['sport']
     }
-};
+}
+
 
 export const findAll = async (): Promise<Item[]> => Object.values(items);
 export const find = async (id: number): Promise<Item> => items[id];

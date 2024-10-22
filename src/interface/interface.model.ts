@@ -1,6 +1,7 @@
 export interface BaseItem {
-    name: string;    
-    description: string;
+    username: string;
+    age: number;
+    hobbies: string[];
 }
 
 export interface Item extends BaseItem {
@@ -10,3 +11,12 @@ export interface Item extends BaseItem {
 export interface Items {
     [key: number]: Item;
 }
+
+
+/* export interface User {
+    id: string;
+    username: string;
+    age: number;
+    hobbies: string[];
+}
+ */

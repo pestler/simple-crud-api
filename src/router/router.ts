@@ -1,36 +1,55 @@
 //import express, { Request, Response } from "express";
+import { IncomingMessage, ServerResponse } from 'http';
+import { parse } from 'url';
 import * as ItemService from "../service/service";
-import { BaseItem, Item } from "../interface/interface.model";
+import { BaseItem, Item, Items } from "../interface/interface.model";
 
-export const itemsRouter = express.Router();
+export const itemsRouter = (req: IncomingMessage, res: ServerResponse) => {
+    const parsedUrl = parse(req.url || '', true);
+    const pathname = parsedUrl.pathname || '';
+    const method = req.method || '';
+    const idMatch = pathname.match(/^\/api\/users\/([0-9a-zA-Z-]+)$/);
+    const id = idMatch ? idMatch[1] : null;
 
-itemsRouter.get("/", async (req: Request, res: Response) => {
-    try {
-        const items: Item[] = await ItemService.findAll();
-
-        res.status(200).send(items);
-    } catch (e) {
-        res.status(500).send(e.message);
+    if (pathname === '/api/users' && method === 'GET') {
+        getMethod(res)
+    } else if (id && pathname === `/api/users/${id}` && method === 'GET') {
+        getMethodId(res, Number(id));
+    } else {
+        res.writeHead(404, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ message: 'Endpoint not found' }));
     }
-});
 
-itemsRouter.get("/:id", async (req: Request, res: Response) => {
-    const id: number = parseInt(req.params.id, 10);
+}
 
+const getMethod = async (res: ServerResponse) => {
+    try {
+        const items: Items = await ItemService.findAll();
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(items));
+    } catch (e) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ message: 'Invalid JSON format' }));
+    }
+};
+
+const getMethodId = async (res: ServerResponse, id: number) => {
     try {
         const item: Item = await ItemService.find(id);
-
         if (item) {
-            return res.status(200).send(item);
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(item));
         }
-
-        res.status(404).send("item not found");
-    } catch (e) {
-        res.status(500).send(e.message);
+        res.writeHead(404, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ message: 'User not found' }));
+    } catch {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ message: 'Invalid user ID format' }));
+        return;
     }
-});
+};
 
-itemsRouter.post("/", async (req: Request, res: Response) => {
+/* itemsRouter.post("/", async (req: Request, res: Response) => {
     try {
         const item: BaseItem = req.body;
 
@@ -72,4 +91,4 @@ itemsRouter.delete("/:id", async (req: Request, res: Response) => {
     } catch (e) {
         res.status(500).send(e.message);
     }
-});
+}); */
