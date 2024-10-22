@@ -6,6 +6,12 @@ let items: Items = {
         username: 'test',
         age: 18,
         hobbies: ['node js', 'angular']
+    },
+    2: {
+        id: 22,
+        username: 'test2',
+        age: 18,
+        hobbies: ['ts']
     }
 }
 
@@ -37,8 +43,9 @@ export const update = async (
     return items[id];
 };
 
-export const remove = async (id: number): Promise<null | void> => {
+export const remove = async (id: number): Promise<null | void> => {    
     const item = await find(id);
+    console.log(item);
 
     if (!item) {
         return null;

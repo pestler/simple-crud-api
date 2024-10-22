@@ -1,4 +1,3 @@
-//import express, { Request, Response } from "express";
 import { IncomingMessage, ServerResponse } from 'http';
 import { parse } from 'url';
 import * as ItemService from "../service/service";
@@ -17,7 +16,9 @@ export const itemsRouter = (req: IncomingMessage, res: ServerResponse) => {
     } else if (id && pathname === `/api/users/${id}` && method === 'GET') {
         getMethodId(res, Number(id));
     } else if (pathname === '/api/users' && method === 'POST') {
-        getMethodPost(req, res);
+        postMethod(req, res);
+    } else if (id && pathname === `/api/users/${id}` && method === 'DELETE') {
+        delMethod(req, res, Number(id));
     }
     else {
         res.writeHead(404, { 'Content-Type': 'application/json' });
@@ -52,7 +53,7 @@ const getMethodId = async (res: ServerResponse, id: number) => {
     }
 };
 
-const getMethodPost = async (req: IncomingMessage, res: ServerResponse) => {
+const postMethod = async (req: IncomingMessage, res: ServerResponse) => {
     let body = '';
 
     req
@@ -68,8 +69,8 @@ const getMethodPost = async (req: IncomingMessage, res: ServerResponse) => {
                     res.end(JSON.stringify({ message: 'Invalid or missing user data' }));
                     return;
                 }
-                
-                const item = { username, age, hobbies }                
+
+                const item = { username, age, hobbies }
                 const newUser = ItemService.create(item);
                 console.log(newUser);
                 res.writeHead(201, { 'Content-Type': 'application/json' });
@@ -80,11 +81,6 @@ const getMethodPost = async (req: IncomingMessage, res: ServerResponse) => {
             }
         });
 
-
-    //res.status(201).json(newItem);
-    //} catch (e) {
-    //res.status(500).send(e.message);
-    //}
 };
 
 /* itemsRouter.put("/:id", async (req: Request, res: Response) => {
@@ -106,15 +102,22 @@ const getMethodPost = async (req: IncomingMessage, res: ServerResponse) => {
     } catch (e) {
         res.status(500).send(e.message);
     }
-});
-
-itemsRouter.delete("/:id", async (req: Request, res: Response) => {
-    try {
-        const id: number = parseInt(req.params.id, 10);
-        await ItemService.remove(id);
-
-        res.sendStatus(204);
-    } catch (e) {
-        res.status(500).send(e.message);
-    }
 }); */
+
+const delMethod = async (req: IncomingMessage, res: ServerResponse, id: number) => {
+    if (!id) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ message: 'Invalid user ID format' }));
+        return;
+    }
+
+    const userId = ItemService.remove(id);
+
+    if (await userId) {
+        res.writeHead(204);
+        res.end();
+    } else {
+        res.writeHead(404, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ message: 'User not found' }));
+    }
+}; 
