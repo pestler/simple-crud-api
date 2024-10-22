@@ -6,6 +6,8 @@ npm install
 
 default port is 4000.
 
+metod localhost:4000/api/users/1
+
 Start in Development Mode:
 
 npm run start:dev
@@ -17,3 +19,4 @@ npm run start:prod
 Run tests:
 
 npm run test
+
