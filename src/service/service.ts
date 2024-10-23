@@ -1,11 +1,6 @@
 import { Item } from "../interface/interface.model";
 
-let items: Item[] = [
-
-]
-
-
-
+let items: Item[] = []
 
 export const findAll = async (): Promise<Item[]> => Object.values(items);
 export const find = async (id: string): Promise<Item | undefined> => items.find((_item) => _item.id === id)

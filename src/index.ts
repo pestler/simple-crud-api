@@ -2,8 +2,6 @@ import * as http from 'http';
 import * as dotenv from "dotenv";
 
 import { itemsRouter } from "./router/router";
-import { errorHandler } from "./middleware/error.middleware";
-import { notFoundHandler } from "./middleware/not-found.middleware";
 
 dotenv.config();
 

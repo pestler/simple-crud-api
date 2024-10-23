@@ -99,13 +99,9 @@ const putMethod = async (req: IncomingMessage, res: ServerResponse, pathname:str
                 }
 
                 const itemUpdate = { id, username, age, hobbies }
-                const idPut=pathname.split('/')[3]
-                //ItemService.create(item);                
-                //const updatedItem =  
+                const idPut=pathname.split('/')[3]                
                 console.log(idPut);
-                ItemService.update(idPut, itemUpdate);
-                //const updatedItem = await ItemService.update(id, itemUpdate);
-            //return res.status(200).json(updatedItem);
+                ItemService.update(idPut, itemUpdate);                
                 res.writeHead(201, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify(itemUpdate));
             } catch {
