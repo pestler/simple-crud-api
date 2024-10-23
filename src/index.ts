@@ -26,13 +26,6 @@ const app = http.createServer((req, res) => {
     itemsRouter(req, res);
 });
 
-
-
-/* app.use("/api/items", itemsRouter);
-app.use(errorHandler);
-app.use(notFoundHandler);
- */
-
 app.listen(PORT, () => {
     console.log(`Listening on port ${PORT}`);
 });
