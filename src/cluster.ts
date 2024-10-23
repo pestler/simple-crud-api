@@ -21,18 +21,6 @@ if (cluster.isMaster) {
         console.log(`Worker ${worker.process.pid} died`);
     });
 } else {
-    /* // Workers can share any TCP connection
-    const requestHandler = (req, res) => {
-        res.end('Hello, World!');
-    };
-
-    const server = http.createServer(requestHandler);
-
-    const PORT = process.env.PORT || 3000;
-
-    server.listen(PORT, () => {
-        console.log(`Worker ${process.pid} is running on port ${PORT}`);
-    }); */
 
     const PORT: number = parseInt(process.env.PORT as string, 10) || 4000;
 
