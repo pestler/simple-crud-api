@@ -9,6 +9,7 @@ let items: Item[] = [
 
 export const findAll = async (): Promise<Item[]> => Object.values(items);
 export const find = async (id: string): Promise<Item | undefined> => items.find((_item) => _item.id === id)
+export const findIndex = (id: string) => items.findIndex((_item) => _item.id === id)
 
 export const create = async (newItem: Item): Promise<Item> => {
     items.push(newItem)
@@ -19,17 +20,14 @@ export const update = async (
     id: string,
     itemUpdate: Item
 ): Promise<Item | null> => {
-    console.log(id);
-    let item = await find(id);
-    console.log(item);
+    let item = findIndex(id);
 
     if (!item) {
         return null;
     }
-    console.log(itemUpdate);
-    item = { ...itemUpdate };
+    items[item] = { ...itemUpdate, };
 
-    return item;
+    return items[item];
 };
 
 export const remove = async (id: string): Promise<null | void> => {
@@ -40,6 +38,4 @@ export const remove = async (id: string): Promise<null | void> => {
         return null;
     }
     items = items.filter((item) => item !== itemId)
-
-
 };
