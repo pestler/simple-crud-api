@@ -1,22 +1,7 @@
-export interface BaseItem {
-    username: string;
-    age: number;
-    hobbies: string[];
-}
-
-export interface Item extends BaseItem {
-    id: number;
-}
-
-export interface Items {
-    [key: number]: Item;
-}
-
-
-/* export interface User {
+export interface Item {
     id: string;
     username: string;
     age: number;
     hobbies: string[];
 }
- */
+

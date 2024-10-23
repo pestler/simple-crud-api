@@ -1,7 +1,7 @@
 import { IncomingMessage, ServerResponse } from 'http';
 import { parse } from 'url';
 import * as ItemService from "../service/service";
-import { BaseItem, Item, Items } from "../interface/interface.model";
+import { Item } from "../interface/interface.model";
 
 export const itemsRouter = (req: IncomingMessage, res: ServerResponse) => {
     const parsedUrl = parse(req.url || '', true);
@@ -14,11 +14,11 @@ export const itemsRouter = (req: IncomingMessage, res: ServerResponse) => {
     if (pathname === '/api/users' && method === 'GET') {
         getMethod(res)
     } else if (id && pathname === `/api/users/${id}` && method === 'GET') {
-        getMethodId(res, Number(id));
+        getMethodId(res, id);
     } else if (pathname === '/api/users' && method === 'POST') {
         postMethod(req, res);
     } else if (id && pathname === `/api/users/${id}` && method === 'DELETE') {
-        delMethod(req, res, Number(id));
+        delMethod( res, id);
     }
     else {
         res.writeHead(404, { 'Content-Type': 'application/json' });
@@ -28,7 +28,7 @@ export const itemsRouter = (req: IncomingMessage, res: ServerResponse) => {
 
 const getMethod = async (res: ServerResponse) => {
     try {
-        const items: Items = await ItemService.findAll();
+        const items: Item[] = await ItemService.findAll();
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify(items));
     } catch (e) {
@@ -37,9 +37,9 @@ const getMethod = async (res: ServerResponse) => {
     }
 };
 
-const getMethodId = async (res: ServerResponse, id: number) => {
+const getMethodId = async (res: ServerResponse, id: string) => {
     try {
-        const item: Item = await ItemService.find(id);
+        const item: Item | undefined = await ItemService.find(id);
         if (item) {
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify(item));
@@ -62,7 +62,7 @@ const postMethod = async (req: IncomingMessage, res: ServerResponse) => {
         })
         .on('end', () => {
             try {
-                const { username, age, hobbies } = JSON.parse(body);
+                const { id, username, age, hobbies } = JSON.parse(body);
 
                 if (!username || typeof age !== 'number' || !Array.isArray(hobbies)) {
                     res.writeHead(400, { 'Content-Type': 'application/json' });
@@ -70,11 +70,10 @@ const postMethod = async (req: IncomingMessage, res: ServerResponse) => {
                     return;
                 }
 
-                const item = { username, age, hobbies }
-                const newUser = ItemService.create(item);
-                console.log(newUser);
+                const item = { id, username, age, hobbies }
+                ItemService.create(item);                
                 res.writeHead(201, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify(newUser));
+                res.end(JSON.stringify(item));
             } catch {
                 res.writeHead(400, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ message: 'Invalid JSON format' }));
@@ -104,7 +103,7 @@ const postMethod = async (req: IncomingMessage, res: ServerResponse) => {
     }
 }); */
 
-const delMethod = async (req: IncomingMessage, res: ServerResponse, id: number) => {
+const delMethod = async ( res: ServerResponse, id: string) => {
     if (!id) {
         res.writeHead(400, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ message: 'Invalid user ID format' }));
