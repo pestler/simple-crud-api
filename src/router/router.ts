@@ -19,6 +19,8 @@ export const itemsRouter = (req: IncomingMessage, res: ServerResponse) => {
         postMethod(req, res);
     } else if (id && pathname === `/api/users/${id}` && method === 'DELETE') {
         delMethod( res, id);
+    } else if (id && pathname === `/api/users/${id}` && method === 'PUT') {
+        putMethod( req, res, pathname);
     }
     else {
         res.writeHead(404, { 'Content-Type': 'application/json' });
@@ -55,7 +57,6 @@ const getMethodId = async (res: ServerResponse, id: string) => {
 
 const postMethod = async (req: IncomingMessage, res: ServerResponse) => {
     let body = '';
-
     req
         .on('data', (data) => {
             body += data;
@@ -79,29 +80,40 @@ const postMethod = async (req: IncomingMessage, res: ServerResponse) => {
                 res.end(JSON.stringify({ message: 'Invalid JSON format' }));
             }
         });
-
 };
 
-/* itemsRouter.put("/:id", async (req: Request, res: Response) => {
-    const id: number = parseInt(req.params.id, 10);
+const putMethod = async (req: IncomingMessage, res: ServerResponse, pathname:string) => {    
+    let body = '';
+    req
+        .on('data', (data) => {
+            body += data;
+        })
+        .on('end', () => {
+            try {
+                const { id, username, age, hobbies } = JSON.parse(body);
 
-    try {
-        const itemUpdate: Item = req.body;
+                if (!username || typeof age !== 'number' || !Array.isArray(hobbies)) {
+                    res.writeHead(400, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ message: 'Invalid or missing user data' }));
+                    return;
+                }
 
-        const existingItem: Item = await ItemService.find(id);
-
-        if (existingItem) {
-            const updatedItem = await ItemService.update(id, itemUpdate);
-            return res.status(200).json(updatedItem);
-        }
-
-        const newItem = await ItemService.create(itemUpdate);
-
-        res.status(201).json(newItem);
-    } catch (e) {
-        res.status(500).send(e.message);
-    }
-}); */
+                const itemUpdate = { id, username, age, hobbies }
+                const idPut=pathname.split('/')[3]
+                //ItemService.create(item);                
+                //const updatedItem =  
+                console.log(idPut);
+                ItemService.update(idPut, itemUpdate);
+                //const updatedItem = await ItemService.update(id, itemUpdate);
+            //return res.status(200).json(updatedItem);
+                res.writeHead(201, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify(itemUpdate));
+            } catch {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ message: 'Invalid JSON format' }));
+            }
+        });
+};
 
 const delMethod = async ( res: ServerResponse, id: string) => {
     if (!id) {

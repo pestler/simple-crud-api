@@ -1,18 +1,7 @@
 import { Item } from "../interface/interface.model";
 
 let items: Item[] = [
-    {
-        id: '11',
-        username: 'test',
-        age: 18,
-        hobbies: ['node js', 'angular']
-    },
-    {
-        id: '22',
-        username: 'test2',
-        age: 18,
-        hobbies: ['ts']
-    }
+
 ]
 
 
@@ -26,20 +15,22 @@ export const create = async (newItem: Item): Promise<Item> => {
     return newItem;
 };
 
-/* export const update = async (
-    id: number,
-    itemUpdate: BaseItem
+export const update = async (
+    id: string,
+    itemUpdate: Item
 ): Promise<Item | null> => {
-    const item = await find(id);
+    console.log(id);
+    let item = await find(id);
+    console.log(item);
 
     if (!item) {
         return null;
     }
+    console.log(itemUpdate);
+    item = { ...itemUpdate };
 
-    items[id] = { id, ...itemUpdate };
-
-    return items[id];
-}; */
+    return item;
+};
 
 export const remove = async (id: string): Promise<null | void> => {
     const itemId = await find(id);
@@ -49,6 +40,6 @@ export const remove = async (id: string): Promise<null | void> => {
         return null;
     }
     items = items.filter((item) => item !== itemId)
-    
+
 
 };
