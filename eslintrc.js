@@ -1,35 +1,47 @@
 module.exports = {
     env: {
         browser: true,
+        node: true,
         es2021: true,
     },
-    plugins: ['@typescript-eslint', '@typescript-eslint/eslint-plugin', 'prettier'],
+    parser: '@typescript-eslint/parser',
+    plugins: ['@typescript-eslint', 'prettier'],
     extends: [
         'airbnb-base',
-        'standard-with-typescript',
         'plugin:@typescript-eslint/recommended',
         'plugin:prettier/recommended',
         'airbnb-typescript/base',
-        'prettier'
+        'prettier',
     ],
+    parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+        project: './tsconfig.json',
+    },
     overrides: [
         {
+            files: ['*.js', '*.cjs'],
             env: {
                 node: true,
             },
-            files: ['.eslintrc.{js,cjs}'],
             parserOptions: {
                 sourceType: 'script',
             },
         },
     ],
-    parserOptions: {
-        ecmaVersion: 'latest',
-        sourceType: 'module',
-    },
     rules: {
+
         'import/extensions': 'off',
         'import/prefer-default-export': 'off',
-        'no-console': 'off'
+
+
+        'no-console': 'off',
+
+
+        '@typescript-eslint/no-unused-vars': ['error'],
+        '@typescript-eslint/explicit-function-return-type': 'off',
+        '@typescript-eslint/ban-ts-comment': 'warn',
+
+        'prettier/prettier': ['error', { endOfLine: 'auto' }],
     },
 };
