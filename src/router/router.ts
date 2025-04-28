@@ -7,35 +7,42 @@ export const itemsRouter = (req: IncomingMessage, res: ServerResponse) => {
     const parsedUrl = parse(req.url || '', true);
     const pathname = parsedUrl.pathname || '';
     const method = req.method || '';
-    console.log(method);
+    console.log(`Request Method: ${method}, Path: ${pathname}`);
+
     const idMatch = pathname.match(/^\/api\/users\/([0-9a-zA-Z-]+)$/);
     const id = idMatch ? idMatch[1] : null;
 
-    if (pathname === '/api/users' && method === 'GET') {
-        getMethod(res)
-    } else if (id && pathname === `/api/users/${id}` && method === 'GET') {
-        getMethodId(res, id);
-    } else if (pathname === '/api/users' && method === 'POST') {
-        postMethod(req, res);
-    } else if (id && pathname === `/api/users/${id}` && method === 'DELETE') {
-        delMethod( res, id);
-    } else if (id && pathname === `/api/users/${id}` && method === 'PUT') {
-        putMethod( req, res, pathname);
+    try {
+        if (pathname === '/api/users' && method === 'GET') {
+            getMethod(res);
+        } else if (id && method === 'GET') {
+            getMethodId(res, id);
+        } else if (pathname === '/api/users' && method === 'POST') {
+            postMethod(req, res);
+        } else if (id && method === 'DELETE') {
+            delMethod(res, id);
+        } else if (id && method === 'PUT') {
+            putMethod(req, res, id);
+        } else {
+            res.writeHead(404, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ message: 'Endpoint not found' }));
+        }
+    } catch (error) {
+        console.error(`Unexpected error: ${error}`);
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ message: 'Internal server error' }));
     }
-    else {
-        res.writeHead(404, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ message: 'Endpoint not found' }));
-    }
-}
+};
 
 const getMethod = async (res: ServerResponse) => {
     try {
         const items: Item[] = await ItemService.findAll();
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify(items));
-    } catch (e) {
-        res.writeHead(400, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ message: 'Invalid JSON format' }));
+    } catch (error) {
+        console.error(`Error fetching all users: ${error}`);
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ message: 'Failed to fetch users' }));
     }
 };
 
@@ -45,23 +52,24 @@ const getMethodId = async (res: ServerResponse, id: string) => {
         if (item) {
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify(item));
+        } else {
+            res.writeHead(404, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ message: 'User not found' }));
         }
-        res.writeHead(404, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ message: 'User not found' }));
-    } catch {
-        res.writeHead(400, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ message: 'Invalid user ID format' }));
-        return;
+    } catch (error) {
+        console.error(`Error fetching user by ID: ${id}, Error: ${error}`);
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ message: 'Failed to fetch user by ID' }));
     }
 };
 
 const postMethod = async (req: IncomingMessage, res: ServerResponse) => {
     let body = '';
     req
-        .on('data', (data) => {
-            body += data;
+        .on('data', (chunk) => {
+            body += chunk;
         })
-        .on('end', () => {
+        .on('end', async () => {
             try {
                 const { id, username, age, hobbies } = JSON.parse(body);
 
@@ -71,26 +79,28 @@ const postMethod = async (req: IncomingMessage, res: ServerResponse) => {
                     return;
                 }
 
-                const item = { id, username, age, hobbies }
-                ItemService.create(item);                
+                const newItem: Item = { id, username, age, hobbies };
+                await ItemService.create(newItem);
+
                 res.writeHead(201, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify(item));
-            } catch {
+                res.end(JSON.stringify(newItem));
+            } catch (error) {
+                console.error(`Error creating user: ${error}`);
                 res.writeHead(400, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ message: 'Invalid JSON format' }));
             }
         });
 };
 
-const putMethod = async (req: IncomingMessage, res: ServerResponse, pathname:string) => {    
+const putMethod = async (req: IncomingMessage, res: ServerResponse, id: string) => {
     let body = '';
     req
-        .on('data', (data) => {
-            body += data;
+        .on('data', (chunk) => {
+            body += chunk;
         })
-        .on('end', () => {
+        .on('end', async () => {
             try {
-                const { id, username, age, hobbies } = JSON.parse(body);
+                const { username, age, hobbies } = JSON.parse(body);
 
                 if (!username || typeof age !== 'number' || !Array.isArray(hobbies)) {
                     res.writeHead(400, { 'Content-Type': 'application/json' });
@@ -98,33 +108,38 @@ const putMethod = async (req: IncomingMessage, res: ServerResponse, pathname:str
                     return;
                 }
 
-                const itemUpdate = { id, username, age, hobbies }
-                const idPut=pathname.split('/')[3]                
-                console.log(idPut);
-                ItemService.update(idPut, itemUpdate);                
-                res.writeHead(201, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify(itemUpdate));
-            } catch {
+                const itemUpdate = { id, username, age, hobbies };
+                const updatedItem = await ItemService.update(id, itemUpdate);
+
+                if (updatedItem) {
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify(updatedItem));
+                } else {
+                    res.writeHead(404, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ message: 'User not found' }));
+                }
+            } catch (error) {
+                console.error(`Error updating user with ID: ${id}, Error: ${error}`);
                 res.writeHead(400, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ message: 'Invalid JSON format' }));
             }
         });
 };
 
-const delMethod = async ( res: ServerResponse, id: string) => {
-    if (!id) {
-        res.writeHead(400, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ message: 'Invalid user ID format' }));
-        return;
-    }
+const delMethod = async (res: ServerResponse, id: string) => {
+    try {
+        const isDeleted = await ItemService.remove(id);
 
-    const userId = ItemService.remove(id);
-
-    if (await userId) {
-        res.writeHead(204);
-        res.end();
-    } else {
-        res.writeHead(404, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ message: 'User not found' }));
+        if (isDeleted) {
+            res.writeHead(204);
+            res.end();
+        } else {
+            res.writeHead(404, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ message: 'User not found' }));
+        }
+    } catch (error) {
+        console.error(`Error deleting user with ID: ${id}, Error: ${error}`);
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ message: 'Failed to delete user' }));
     }
-}; 
+};
