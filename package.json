@@ -7,7 +7,7 @@
     "test": "jest",
     "build": "tsc",
     "start:dev": "ts-node-dev --respawn --transpile-only src/index.ts",
-    "start:multi": "ts-node-dev --respawn --transpile-only src/balanser.ts",
+    "start:multi": "ts-node-dev --respawn --transpile-only src/balancer.ts",
     "start:prod": "tsc && node dist/index.js",
     "start:mult": "tsc && node dist/index.js"
   },

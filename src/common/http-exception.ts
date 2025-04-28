@@ -4,13 +4,19 @@ export default class HttpException extends Error {
     error: string | null;
 
     constructor(statusCode: number, message: string, error?: string) {
+        if (statusCode < 100 || statusCode > 599) {
+            throw new Error('Invalid HTTP status code');
+        }
+
         super(message);
         this.statusCode = statusCode;
         this.message = message;
         this.error = error || null;
 
         if (process.env.NODE_ENV === 'development') {
-            console.error(this.stack);
+            console.error(`Development Mode - Stack Trace: ${this.stack}`);
+        } else {
+            console.log(`Error Logged: ${this.message}`);
         }
     }
 
@@ -28,5 +34,9 @@ export default class HttpException extends Error {
 
     static Unauthorized(message = 'Unauthorized access', error?: string): HttpException {
         return new HttpException(401, message, error);
+    }
+
+    static CustomError(statusCode: number, message: string, error?: string): HttpException {
+        return new HttpException(statusCode, message, error);
     }
 }

@@ -3,7 +3,8 @@ import * as dotenv from 'dotenv';
 import cluster from 'cluster';
 import { URL } from 'node:url';
 import 'dotenv/config';
-import { itemsRouter } from './router/router';
+import { itemsRouter } from './router/itemsRouter';
+
 
 const numCPUs = require('node:os').availableParallelism() - 1;
 const PORT: number = parseInt(process.env.PORT as string, 10) || 4000;
