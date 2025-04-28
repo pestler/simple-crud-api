@@ -1,7 +1,7 @@
 import { IncomingMessage, ServerResponse } from 'http';
 import { parse } from 'url';
-
-import { getMethod, getMethodId, postMethod, putMethod, delMethod } from './itemController';
+import { getMethod, getMethodId, postMethod, putMethod, delMethod } from '../controllers';
+import { validate as validateUUID } from 'uuid';
 
 export const itemsRouter = (req: IncomingMessage, res: ServerResponse) => {
     const parsedUrl = parse(req.url || '', true);
@@ -11,6 +11,10 @@ export const itemsRouter = (req: IncomingMessage, res: ServerResponse) => {
 
     const idMatch = pathname.match(/^\/api\/users\/([0-9a-zA-Z-]+)$/);
     const id = idMatch ? idMatch[1] : null;
+
+    if (id && !validateUUID(id)) {
+        console.error('Invalid UUID');
+    }
 
     try {
         if (pathname === '/api/users' && method === 'GET') {
