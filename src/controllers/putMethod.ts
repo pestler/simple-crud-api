@@ -3,22 +3,22 @@ import { validate as validateUUID } from 'uuid';
 import * as ItemService from '../services/services';
 
 export const putMethod = async (req: IncomingMessage, res: ServerResponse, id: string) => {
+    if (!validateUUID(id)) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ message: 'Invalid user ID format' }));
+        return;
+    }
+
     let body = '';
     req.on('data', (chunk) => {
         body += chunk;
     }).on('end', async () => {
         try {
-            if (!validateUUID(id)) {
-                res.writeHead(400, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ message: 'Invalid user ID format' }));
-                return;
-            }
-
             const { username, age, hobbies } = JSON.parse(body);
 
             if (!username || typeof age !== 'number' || !Array.isArray(hobbies)) {
                 res.writeHead(400, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ message: 'Invalid or missing item data' }));
+                res.end(JSON.stringify({ message: 'Invalid or missing user data' }));
                 return;
             }
 
@@ -30,12 +30,13 @@ export const putMethod = async (req: IncomingMessage, res: ServerResponse, id: s
                 res.end(JSON.stringify(updatedItem));
             } else {
                 res.writeHead(404, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ message: 'Item not found' }));
+                res.end(JSON.stringify({ message: 'User not found' }));
             }
         } catch (error) {
-            console.error(`Error updating item with ID: ${id}, Error: ${error}`);
+            console.error(`Error updating user with ID: ${id}, Error: ${error}`);
             res.writeHead(400, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ message: 'Invalid JSON format' }));
         }
     });
 };
+

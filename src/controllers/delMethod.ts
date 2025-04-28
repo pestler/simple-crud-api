@@ -17,11 +17,11 @@ export const delMethod = async (res: ServerResponse, id: string) => {
             res.end();
         } else {
             res.writeHead(404, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ message: 'Item not found' }));
+            res.end(JSON.stringify({ message: 'User not found' }));
         }
     } catch (error) {
-        console.error(`Error deleting item with ID: ${id}, Error: ${error}`);
+        console.error(`Error deleting user with ID: ${id}, Error: ${error}`);
         res.writeHead(500, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ message: 'Failed to delete item' }));
+        res.end(JSON.stringify({ message: 'Failed to delete user' }));
     }
 };

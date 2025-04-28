@@ -10,17 +10,17 @@ export const getMethodId = async (res: ServerResponse, id: string) => {
             return;
         }
 
-        const item = await ItemService.find(id);
-        if (item) {
+        const user = await ItemService.find(id);
+        if (user) {
             res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify(item));
+            res.end(JSON.stringify(user));
         } else {
             res.writeHead(404, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ message: 'Item not found' }));
+            res.end(JSON.stringify({ message: 'User not found' }));
         }
     } catch (error) {
-        console.error(`Error fetching item by ID: ${id}, Error: ${error}`);
+        console.error(`Error fetching user by ID: ${id}, Error: ${error}`);
         res.writeHead(500, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ message: 'Failed to fetch item by ID' }));
+        res.end(JSON.stringify({ message: 'Failed to fetch user by ID' }));
     }
 };

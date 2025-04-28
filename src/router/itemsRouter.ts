@@ -9,11 +9,21 @@ export const itemsRouter = (req: IncomingMessage, res: ServerResponse) => {
     const method = req.method || '';
     console.log(`Request Method: ${method}, Path: ${pathname}`);
 
+    if (pathname === '/api/users/internal-error' && method === 'GET') {
+        console.error('Simulated internal server error');
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ message: 'Internal Server Error' }));
+        return;
+    }
+
     const idMatch = pathname.match(/^\/api\/users\/([0-9a-zA-Z-]+)$/);
     const id = idMatch ? idMatch[1] : null;
 
     if (id && !validateUUID(id)) {
         console.error('Invalid UUID');
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ message: 'Invalid user ID format' }));
+        return;
     }
 
     try {
@@ -34,6 +44,6 @@ export const itemsRouter = (req: IncomingMessage, res: ServerResponse) => {
     } catch (error) {
         console.error(`Unexpected error: ${error}`);
         res.writeHead(500, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ message: 'Internal server error' }));
+        res.end(JSON.stringify({ message: 'Internal Server Error' }));
     }
 };

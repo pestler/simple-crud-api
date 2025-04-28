@@ -3,12 +3,12 @@ import * as ItemService from '../services/services';
 
 export const getMethod = async (res: ServerResponse) => {
     try {
-        const items = await ItemService.findAll();
+        const users = await ItemService.findAll();
         res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify(items));
+        res.end(JSON.stringify(users));
     } catch (error) {
         console.error(`Error fetching all items: ${error}`);
         res.writeHead(500, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ message: 'Failed to fetch items' }));
+        res.end(JSON.stringify({ message: 'Failed to fetch users' }));
     }
 };

@@ -13,7 +13,7 @@ export const postMethod = async (req: IncomingMessage, res: ServerResponse) => {
 
             if (!username || typeof age !== 'number' || !Array.isArray(hobbies)) {
                 res.writeHead(400, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ message: 'Invalid or missing item data' }));
+                res.end(JSON.stringify({ message: 'Invalid or missing user data' }));
                 return;
             }
 
